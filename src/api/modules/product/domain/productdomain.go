@@ -14,16 +14,16 @@ type ProductID struct {
 
 // ProductName model
 type ProductName struct {
-	ID string
+	Name string
 }
 
 // ProductDescription model
 type ProductDescription struct {
-	ID string
+	Description string
 }
 
 // ProductRepository repository of product
 type ProductRepository interface {
 	Save(Product) error
-	Find(ID string) (*Product, error)
+	Find(ID ProductID) (*Product, error)
 }

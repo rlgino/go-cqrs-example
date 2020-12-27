@@ -17,16 +17,28 @@ func (mem *InMemoryDB) Save(prod domain.Product) error {
 		mem.products = []domain.Product{}
 	}
 	mem.products = append(mem.products, prod)
-
-	fmt.Println("New size: ", len(mem.products))
 	return nil
 }
 
 // Find method
-func (mem *InMemoryDB) Find(ID string) (*domain.Product, error) {
+func (mem *InMemoryDB) Find(id domain.ProductID) (product *domain.Product, err error) {
+	fmt.Println("New size: ", len(mem.products))
 	if mem.products == nil {
 		mem.products = []domain.Product{}
 	}
 
+	for _, prod := range mem.products {
+		fmt.Println("comparing: ", prod.ID.ID, " with ", id.ID)
+		if prod.ID.ID == id.ID {
+			fmt.Println("Product finded!")
+			product = &domain.Product{
+				ID:          prod.ID,
+				Name:        prod.Name,
+				Description: prod.Description,
+			}
+			return
+		}
+	}
+	fmt.Println("Product not finded :(")
 	return nil, nil
 }

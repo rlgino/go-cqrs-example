@@ -1,8 +1,6 @@
 package creator
 
 import (
-	"fmt"
-
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/domain"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/command"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/shared/infraestructure"
@@ -24,10 +22,15 @@ func (handler createProductCommandHandler) Invoke(cmd infraestructure.Command) e
 	// Create VO
 	// invoke usecase
 	product := cmd.(command.ProductCommand)
-	fmt.Println("Creating product", product.ID)
-	id := domain.ProductID{}
-	name := domain.ProductName{}
-	desc := domain.ProductDescription{}
+	id := domain.ProductID{
+		ID: product.ID,
+	}
+	name := domain.ProductName{
+		Name: product.Name,
+	}
+	desc := domain.ProductDescription{
+		Description: product.Description,
+	}
 	handler.UseCase.Persist(id, name, desc)
 	return nil
 }
