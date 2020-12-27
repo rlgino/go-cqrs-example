@@ -1,4 +1,4 @@
-package query
+package searcher
 
 // ProductQuery query of product
 type ProductQuery struct {

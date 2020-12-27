@@ -2,7 +2,6 @@ package creator
 
 import (
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/domain"
-	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/command"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/shared/infraestructure"
 )
 
@@ -21,7 +20,7 @@ func NewHandler(repo domain.ProductRepository) infraestructure.CommandHandler {
 func (handler createProductCommandHandler) Invoke(cmd infraestructure.Command) error {
 	// Create VO
 	// invoke usecase
-	product := cmd.(command.ProductCommand)
+	product := cmd.(ProductCommand)
 	id := domain.ProductID{
 		ID: product.ID,
 	}

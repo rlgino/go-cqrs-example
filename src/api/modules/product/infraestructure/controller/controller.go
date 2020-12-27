@@ -8,9 +8,7 @@ import (
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/application/creator"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/application/searcher"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/bus"
-	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/command"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/db"
-	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/query"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/shared/infraestructure"
 )
 
@@ -21,11 +19,11 @@ func Run() {
 
 	productCommandBus := bus.New()
 	creatorHandler := creator.NewHandler(db)
-	productCommandBus.Parse(command.ProductCommand{}, creatorHandler)
+	productCommandBus.Parse(creator.ProductCommand{}, creatorHandler)
 
 	productQueryBus := bus.NewQueryBus()
 	searcherHandler := searcher.NewHandler(db)
-	productQueryBus.Parse(query.ProductQuery{}, searcherHandler)
+	productQueryBus.Parse(searcher.ProductQuery{}, searcherHandler)
 
 	http.HandleFunc("/product", handleProduct(productCommandBus, productQueryBus))
 }
@@ -49,7 +47,7 @@ func handleGet(queryBus infraestructure.QueryBus, w http.ResponseWriter, r *http
 	params := r.URL.Query()
 	id := params.Get("product_id")
 
-	query := query.ProductQuery{
+	query := searcher.ProductQuery{
 		ID: id,
 	}
 	res, err := queryBus.Invoke(query)
@@ -77,7 +75,7 @@ func handlePost(bus infraestructure.CommandBus, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	cmd := command.ProductCommand{
+	cmd := creator.ProductCommand{
 		ID:          requestBody.ID,
 		Name:        requestBody.Name,
 		Description: requestBody.Description,
