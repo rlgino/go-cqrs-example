@@ -7,6 +7,7 @@ import (
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/application/creator"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/bus"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/command"
+	"github.com/rlgino/go-cqrs-example/src/api/modules/product/infraestructure/db"
 	"github.com/rlgino/go-cqrs-example/src/api/modules/shared/infraestructure"
 )
 
@@ -14,7 +15,8 @@ import (
 func Run() {
 
 	productCommandBus := bus.New()
-	handler := creator.NewHandler()
+	db := &db.InMemoryDB{}
+	handler := creator.NewHandler(db)
 	productCommandBus.Parse(command.ProductCommand{}, handler)
 
 	http.HandleFunc("/product", createProduct(productCommandBus))
