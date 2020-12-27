@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -14,23 +15,47 @@ import (
 // Run http server
 func Run() {
 
-	productCommandBus := bus.New()
 	db := &db.InMemoryDB{}
-	handler := creator.NewHandler(db)
-	productCommandBus.Parse(command.ProductCommand{}, handler)
 
-	http.HandleFunc("/product", createProduct(productCommandBus))
+	productCommandBus := bus.New()
+	creatorHandler := creator.NewHandler(db)
+	productCommandBus.Parse(command.ProductCommand{}, creatorHandler)
+
+	http.HandleFunc("/product", handleProduct(productCommandBus))
 }
 
-func createProduct(bus infraestructure.CommandBus) func(w http.ResponseWriter, r *http.Request) {
+func handleProduct(bus infraestructure.CommandBus) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cmd := command.ProductCommand{
-			ID:          "asdf",
-			Name:        "Product Name",
-			Description: "Product description",
+		switch r.Method {
+		case http.MethodPost:
+			handlePost(bus, w, r)
+			break
+		default:
+			w.WriteHeader(404)
 		}
-
-		bus.Dispatch(cmd)
-		fmt.Fprintf(w, "Product created")
 	}
+}
+
+func handlePost(bus infraestructure.CommandBus, w http.ResponseWriter, r *http.Request) {
+	requestBody := &productRequest{}
+	err := json.NewDecoder(r.Body).Decode(requestBody)
+	if err != nil {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, err.Error())
+		return
+	}
+
+	cmd := command.ProductCommand{
+		ID:          requestBody.ID,
+		Name:        requestBody.Name,
+		Description: requestBody.Description,
+	}
+	bus.Dispatch(cmd)
+	fmt.Fprintf(w, "Product created")
+}
+
+type productRequest struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
